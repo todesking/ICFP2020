@@ -52,6 +52,28 @@ class Engine {
               case unk =>
                 throw new NotImplementedError("isnil <unknown-closure>")
             }
+          case "draw" =>
+            def draw(pic: V.Pic, l: V): V.Pic =
+              l match {
+                case V.Cons(car, cdr) =>
+                  val p2 = car match {
+                    case V.Cons(x, y) =>
+                      pic.put(x.toInt, y.toInt)
+                    case unk =>
+                      throw new NotImplementedError(
+                        s"(Int, Int) required: $unk"
+                      )
+                  }
+                  draw(p2, cdr)
+                case V.Nil =>
+                  pic
+                case unk =>
+                  throw new NotImplementedError(
+                    s"List[(Int, Int)] required: $unk"
+                  )
+              }
+            val init = V.newPic(19, 15)
+            draw(init, x)
           case unk => throw new AssertionError(s"Unknown F1 name: $unk")
         }
       case V.F2(name) => V.F2X(name, x)

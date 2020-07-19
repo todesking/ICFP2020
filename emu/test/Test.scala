@@ -5,10 +5,11 @@ class Test extends AnyFunSpec {
     handle().assertEval(src, expected)
 
   class Ctx(val send: V => V) {
+    val engine = new Engine() {
+      override def handleSend(data: V): V = send(data)
+    }
+
     def assertEval(src: String, expected: V): Unit = {
-      val engine = new Engine() {
-        override def handleSend(data: V): V = send(data)
-      }
       val debug = false
       if (debug) {
         println(s"src: $src")
@@ -16,6 +17,7 @@ class Test extends AnyFunSpec {
       }
       assert(engine.eval(src) == expected, s"eval($src) should $expected")
     }
+    def eval(src: String): V = engine.eval(src)
   }
   def handle(send: PartialFunction[V, V] = { x => x }): Ctx =
     new Ctx(send)
@@ -139,7 +141,52 @@ class Test extends AnyFunSpec {
     assertEval("(1)", V.Cons(V.Num(1), V.Nil))
     assertEval("(1, 2)", V.Cons(V.Num(1), V.Cons(V.Num(2), V.Nil)))
   }
-  it("30. vector") {
+  it("31. vector") {
     assertEval("ap ap vec 1 2", V.Cons(V.Num(1), V.Num(2)))
+  }
+  it("32. draw") {
+    def pic(s: String) =
+      s.stripMargin.tail.split("\n").init.map(_.substring(2)).mkString("\n")
+
+    val p1 = handle().eval("ap draw ( ap ap vec 1 2 )").asInstanceOf[V.Pic]
+    //   0    5    A    5
+    assert(p1.toString == pic("""
+      |0 ___________________
+      |1 ___________________
+      |2 _*_________________
+      |3 ___________________
+      |4 ___________________
+      |5 ___________________
+      |6 ___________________
+      |7 ___________________
+      |8 ___________________
+      |9 ___________________
+      |A ___________________
+      |B ___________________
+      |C ___________________
+      |D ___________________
+      |E ___________________
+    """))
+    val p2 = handle().eval(
+      "ap draw ( ap ap vec 5 3 , ap ap vec 6 3 , ap ap vec 4 4 , ap ap vec 6 4 , ap ap vec 4 5 )"
+    )
+    //   0    5    A    5
+    assert(p2.toString == pic("""
+      |0 ___________________
+      |1 ___________________
+      |2 ___________________
+      |3 _____**____________
+      |4 ____*_*____________
+      |5 ____*______________
+      |6 ___________________
+      |7 ___________________
+      |8 ___________________
+      |9 ___________________
+      |A ___________________
+      |B ___________________
+      |C ___________________
+      |D ___________________
+      |E ___________________
+    """))
   }
 }

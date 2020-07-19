@@ -8,6 +8,26 @@ object V {
     override def toInt = v
   }
 
+  def newPic(w: Int, h: Int) = {
+    val data = (0 until h).map { _ =>
+      (0 until w).map { _ => false }.toVector
+    }.toVector
+    Pic(data)
+  }
+
+  case class Pic(data: Seq[Seq[Boolean]]) extends V {
+    override def toString =
+      data
+        .map { row =>
+          row.map { x => if (x) "*" else "_" }.mkString("")
+        }
+        .mkString("\n")
+    def put(x: Int, y: Int): Pic = {
+      val updated = data.updated(y, data(y).updated(x, true))
+      copy(data = updated)
+    }
+  }
+
   case class Cons(car: V, cdr: V) extends V
   val Nil = F1("nil")
 
