@@ -1,5 +1,19 @@
+import java.nio.file.Files
+import java.nio.file.Paths
+import scala.jdk.CollectionConverters._
+
 class Engine {
   private[this] var env = Map.empty[String, V]
+
+  var alienProxyEnabled: Boolean = false
+
+  def loadFile(path: String): Unit = {
+    val linePat = """(:?[a-z0-9]+)\s*=\s*(.+)""".r
+    Files.readAllLines(Paths.get(path)).asScala.filter(_.nonEmpty).foreach {
+      case `linePat`(name, src) =>
+        evalDefinition(if(name(0) == ':') name else ":" + name, src)
+    }
+  }
 
   def evalAll(src: String): V =
     unwrapAll(evalStrict(Parser.parse(src)))
@@ -8,6 +22,16 @@ class Engine {
     val v = eval(Parser.parse(src))
     env = env + (name -> v)
     v
+  }
+
+  def interact(protocol: V, state: V, vector: V): (V, Seq[V]) = {
+    unwrapAll(evalApp(evalApp(protocol, state), vector)) match {
+      case V.Cons(flag, V.Cons(newState, V.Cons(data, V.Nil))) =>
+        val multipledraw = Tree.Ap(Tree.F1("multipledraw"), Tree.Value(data))
+        if (flag == V.Num(0)) (newState, V.toSeq(unwrapAll(eval(multipledraw))))
+        else interact(protocol, newState, handleSend(V.Mod(data)))
+      case unk => throw new RuntimeException(s"Unexpected value: $unk")
+    }
   }
 
   def unwrapAll(v: V): V =
@@ -194,11 +218,19 @@ class Engine {
         throw new RuntimeException(s"Function required: $f")
     }
 
-  def evalToInt(tree: Tree): Int =
+  def evalToInt(tree: Tree): Long =
     eval(tree) match {
       case V.Num(n) => n
       case x        => throw new RuntimeException(s"Int required but $x: eval($tree)")
     }
 
-  def handleSend(data: V): V = data
+  def handleSend(data: V): V = data match {
+    case V.Mod(v) =>
+      val payload = V.modulate(v)
+      V.demodulate(alienProxy(payload))
+    case unk => throw new RuntimeException(s"Modulated value required: $data")
+  }
+  def alienProxy(data: String): String =
+    if(alienProxyEnabled) AlienProxy.send(data)
+    else throw new RuntimeException(s"Alien proxy is disabled")
 }

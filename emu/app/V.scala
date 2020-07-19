@@ -119,4 +119,12 @@ object V {
       }
     }
   }
+
+  def toSeq(v: V): List[V] =
+    v match {
+      case V.Cons(car, cdr) =>
+        car :: toSeq(cdr)
+      case V.Nil => scala.collection.immutable.Nil
+      case unk   => throw new RuntimeException(s"List required: $unk")
+    }
 }
