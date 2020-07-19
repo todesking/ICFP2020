@@ -1,8 +1,5 @@
 import org.scalatest.funspec.AnyFunSpec
 
-
-
-
 class Test extends AnyFunSpec {
   def assertEval(src: String, expected: V): Unit =
     handle().assertEval(src, expected)
@@ -13,14 +10,14 @@ class Test extends AnyFunSpec {
         override def handleSend(data: V): V = send(data)
       }
       val debug = false
-      if(debug) {
+      if (debug) {
         println(s"src: $src")
         println(s"parsed: ${Parser.parse(src)}")
       }
       assert(engine.eval(src) == expected, s"eval($src) should $expected")
     }
   }
-  def handle(send: PartialFunction[V, V] = {x => x}): Ctx =
+  def handle(send: PartialFunction[V, V] = { x => x }): Ctx =
     new Ctx(send)
 
   it("1. nums") {
@@ -66,7 +63,7 @@ class Test extends AnyFunSpec {
     assertEval("ap dem ap mod 99", V.Num(99))
   }
   it("15. send") {
-    handle(send = { case V.Num(1) => V.Num(2)})
+    handle(send = { case V.Num(1) => V.Num(2) })
       .assertEval("ap send 1", V.Num(2))
   }
   it("16. negate") {
@@ -89,5 +86,9 @@ class Test extends AnyFunSpec {
       case (src, expected) =>
         assertEval(src, expected)
     }
+  }
+  it("18. S combinator") {
+    assertEval("ap ap ap s add inc 1", V.Num(3))
+    assertEval("ap ap ap s mul ap add 1 6", V.Num(42))
   }
 }
