@@ -31,6 +31,8 @@ class Engine {
             val n = x.toInt
             if (n < 0) throw new RuntimeException(s"pwr2: n >= 0 required: $n")
             else V.Num(1 << n)
+          case "i" =>
+            x
           case unk => throw new AssertionError(s"Unknown F1 name: $unk")
         }
       case V.F2(name) => V.F2X(name, x)
