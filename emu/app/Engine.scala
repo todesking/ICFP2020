@@ -1,6 +1,14 @@
 class Engine {
-  def eval(src: String): V =
-    eval(Parser.parse(src))
+  def evalAll(src: String): V =
+    unwrapAll(evalStrict(Parser.parse(src)))
+
+  def unwrapAll(v: V): V =
+    unwrap(v) match {
+      case V.Cons(car, cdr) => V.Cons(unwrapAll(car), unwrapAll(cdr))
+      case v                => v
+    }
+
+  private[this] val cache = scala.collection.mutable.HashMap.empty[Tree, V]
 
   val checkerboard = eval(Parser.parse("""
     ap ap s ap ap b s ap ap c ap ap b c ap ap b ap c ap c
@@ -13,49 +21,69 @@ class Engine {
 
   import Tree._
   def eval(tree: Tree): V =
-    tree match {
-      case Num(n) => V.Num(n)
-      case F1(f)  => V.F1(f)
-      case F2(f)  => V.F2(f)
-      case F3(f)  => V.F3(f)
-      case Ap(tf, tx) =>
-        evalApp(eval(tf), eval(tx))
+    cache.getOrElseUpdate(
+      tree,
+      tree match {
+        case Num(n) => V.Num(n)
+        case F1(f)  => V.F1(f)
+        case F2(f)  => V.F2(f)
+        case F3(f)  => V.F3(f)
+        case tree @ Ap(tf, tx) =>
+          evalApp(eval(tf), V.Lazy(tx))
+      }
+    )
+
+  def evalStrict(tree: Tree): V =
+    eval(tree) match {
+      case V.Lazy(tree) => eval(tree)
+      case v            => v
+    }
+
+  def unwrapInt(v: V): Int =
+    unwrap(v) match {
+      case V.Num(n) => n
+      case unk      => throw new RuntimeException(s"Int required: $unk")
+    }
+  def unwrap(v: V): V =
+    v match {
+      case V.Lazy(tree) => evalStrict(tree)
+      case v            => v
     }
 
   def evalApp(f: V, x: V): V =
-    f match {
+    unwrap(f) match {
       case V.F1(name) =>
         name match {
-          case "inc" => V.Num(x.toInt + 1)
-          case "dec" => V.Num(x.toInt - 1)
-          case "mod" => V.ModNum(x.toInt)
+          case "inc" => V.Num(unwrapInt(x) + 1)
+          case "dec" => V.Num(unwrapInt(x) - 1)
+          case "mod" => V.ModNum(unwrapInt(x))
           case "dem" =>
-            x match {
+            unwrap(x) match {
               case V.ModNum(n) => V.Num(n)
               case unk         => throw new RuntimeException(s"ModNum expected: $x")
             }
-          case "send" => handleSend(x)
-          case "neg"  => V.Num(-x.toInt)
+          case "send" => handleSend(unwrap(x))
+          case "neg"  => V.Num(-unwrapInt(x))
           case "pwr2" =>
-            val n = x.toInt
+            val n = unwrapInt(x)
             if (n < 0) throw new RuntimeException(s"pwr2: n >= 0 required: $n")
             else V.Num(1 << n)
           case "i" =>
             x
           case "car" =>
-            x match {
+            unwrap(x) match {
               case V.Cons(car, cdr) => car
               case f                => evalApp(f, V.True)
             }
           case "cdr" =>
-            x match {
+            unwrap(x) match {
               case V.Cons(car, cdr) => cdr
               case f                => evalApp(f, V.False)
             }
           case "nil" =>
             V.True
           case "isnil" =>
-            x match {
+            unwrap(x) match {
               case V.Nil        => V.True
               case V.Cons(_, _) => V.False
               case unk =>
@@ -63,11 +91,11 @@ class Engine {
             }
           case "draw" =>
             def draw(pic: V.Pic, l: V): V.Pic =
-              l match {
+              unwrap(l) match {
                 case V.Cons(car, cdr) =>
-                  val p2 = car match {
+                  val p2 = unwrap(car) match {
                     case V.Cons(x, y) =>
-                      pic.put(x.toInt, y.toInt)
+                      pic.put(unwrapInt(x), unwrapInt(y))
                     case unk =>
                       throw new NotImplementedError(
                         s"(Int, Int) required: $unk"
@@ -89,15 +117,15 @@ class Engine {
       case V.F2X(name, x1) =>
         name match {
           case "add" =>
-            V.Num(x1.toInt + x.toInt)
+            V.Num(unwrapInt(x1) + unwrapInt(x))
           case "mul" =>
-            V.Num(x1.toInt * x.toInt)
+            V.Num(unwrapInt(x1) * unwrapInt(x))
           case "div" =>
-            V.Num(x1.toInt / x.toInt)
+            V.Num(unwrapInt(x1) / unwrapInt(x))
           case "eq" =>
-            V.bool(x1 == x)
+            V.bool(unwrap(x1) == unwrap(x))
           case "lt" =>
-            V.bool(x1.toInt < x.toInt)
+            V.bool(unwrapInt(x1) < unwrapInt(x))
           case "t" =>
             x1
           case "f" =>

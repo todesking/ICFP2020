@@ -1,11 +1,8 @@
-sealed abstract class V {
-  def toInt: Int = throw new AssertionError(s"Num expected: $this")
-}
+sealed abstract class V {}
 object V {
   def bool(b: Boolean) = if (b) True else False
 
   case class Num(v: Int) extends V {
-    override def toInt = v
     override def toString = s"$v"
   }
 
@@ -53,6 +50,8 @@ object V {
   case class F3XX(name: String, x1: V, x2: V) extends V {
     override def toString = s"$name($x1, $x2, _)"
   }
+
+  case class Lazy(tree: Tree) extends V
 
   case class ModNum(v: Int) extends V {
     override def toString = s"mod($v)"

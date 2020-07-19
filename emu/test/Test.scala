@@ -15,9 +15,9 @@ class Test extends AnyFunSpec {
         println(s"src: $src")
         println(s"parsed: ${Parser.parse(src)}")
       }
-      assert(engine.eval(src) == expected, s"eval($src) should $expected")
+      assert(engine.evalAll(src) == expected, s"eval($src) should $expected")
     }
-    def eval(src: String): V = engine.eval(src)
+    def eval(src: String): V = engine.evalAll(src)
   }
   def handle(send: PartialFunction[V, V] = { x => x }): Ctx =
     new Ctx(send)
