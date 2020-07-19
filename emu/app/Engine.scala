@@ -11,7 +11,7 @@ class Engine {
     val linePat = """(:?[a-z0-9]+)\s*=\s*(.+)""".r
     Files.readAllLines(Paths.get(path)).asScala.filter(_.nonEmpty).foreach {
       case `linePat`(name, src) =>
-        evalDefinition(if(name(0) == ':') name else ":" + name, src)
+        evalDefinition(if (name(0) == ':') name else ":" + name, src)
     }
   }
 
@@ -83,7 +83,7 @@ class Engine {
       case v            => v
     }
 
-  def unwrapInt(v: V): Int =
+  def unwrapInt(v: V): Long =
     unwrap(v) match {
       case V.Num(n) => n
       case unk      => throw new RuntimeException(s"Int required: $unk")
@@ -113,7 +113,7 @@ class Engine {
           case "pwr2" =>
             val n = unwrapInt(x)
             if (n < 0) throw new RuntimeException(s"pwr2: n >= 0 required: $n")
-            else V.Num(1 << n)
+            else V.Num(1 << n.toInt)
           case "i" =>
             x
           case "car" =>
@@ -224,13 +224,14 @@ class Engine {
       case x        => throw new RuntimeException(s"Int required but $x: eval($tree)")
     }
 
-  def handleSend(data: V): V = data match {
-    case V.Mod(v) =>
-      val payload = V.modulate(v)
-      V.demodulate(alienProxy(payload))
-    case unk => throw new RuntimeException(s"Modulated value required: $data")
-  }
+  def handleSend(data: V): V =
+    data match {
+      case V.Mod(v) =>
+        val payload = V.modulate(v)
+        V.demodulate(alienProxy(payload))
+      case unk => throw new RuntimeException(s"Modulated value required: $data")
+    }
   def alienProxy(data: String): String =
-    if(alienProxyEnabled) AlienProxy.send(data)
+    if (alienProxyEnabled) AlienProxy.send(data)
     else throw new RuntimeException(s"Alien proxy is disabled")
 }

@@ -3,7 +3,8 @@ import java.net.{URI, HttpURLConnection}
 
 object AlienProxy {
   lazy val apiKey = sys.env("ICFPC_API_KEY")
-  lazy val endpoint = "https://icfpc2020-api.testkontur.ru/aliens/send?apiKey=" + apiKey
+  lazy val endpoint =
+    "https://icfpc2020-api.testkontur.ru/aliens/send?apiKey=" + apiKey
 
   def send(data: String): String = {
     val request = HttpRequest.newBuilder
@@ -15,7 +16,9 @@ object AlienProxy {
       .send(request, HttpResponse.BodyHandlers.ofString)
     val status = response.statusCode
     if (status != HttpURLConnection.HTTP_OK) {
-      throw new RuntimeException(s"HTTP status ${response.statusCode}: ${response.body}")
+      throw new RuntimeException(
+        s"HTTP status ${response.statusCode}: ${response.body}"
+      )
     }
     response.body
   }

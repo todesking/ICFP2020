@@ -2,7 +2,7 @@ sealed abstract class V {}
 object V {
   def bool(b: Boolean) = if (b) True else False
 
-  case class Num(v: Int) extends V {
+  case class Num(v: Long) extends V {
     override def toString = s"$v"
   }
 
@@ -20,8 +20,8 @@ object V {
           row.map { x => if (x) "*" else "_" }.mkString("")
         }
         .mkString("\n")
-    def put(x: Int, y: Int): Pic = {
-      val updated = data.updated(y, data(y).updated(x, true))
+    def put(x: Long, y: Long): Pic = {
+      val updated = data.updated(y.toInt, data(y.toInt).updated(x.toInt, true))
       copy(data = updated)
     }
   }
@@ -61,7 +61,7 @@ object V {
     v match {
       case V.Num(n) =>
         val abs = if (n < 0) -n else n
-        val data = if (n == 0) "" else Integer.toString(abs, 2)
+        val data = if (n == 0) "" else java.lang.Long.toString(abs, 2)
         val padding =
           if (data.size % 4 == 0) ""
           else (0 until (4 - data.size % 4)).map { _ => "0" }.mkString("")

@@ -22,7 +22,7 @@ object Parser {
           Tree.Var(name)
         case ReNum(n) =>
           move(1)
-          Tree.Num(n.toInt)
+          Tree.Num(n.toLong)
         case name @ ("inc" | "dec" | "mod" | "dem" | "send" | "neg" | "pwr2" |
             "i" | "car" | "cdr" | "nil" | "isnil" | "draw" | "multipledraw") =>
           move(1)
