@@ -11,7 +11,10 @@ class Engine {
     val linePat = """(:?[a-z0-9]+)\s*=\s*(.+)""".r
     Files.readAllLines(Paths.get(path)).asScala.filter(_.nonEmpty).foreach {
       case `linePat`(name, src) =>
-        evalDefinition(if (name(0) == ':') name else ":" + name, src)
+        define(
+          if (name(0) == ':') name else ":" + name,
+          V.Lazy(Parser.parse(src))
+        )
     }
   }
 
@@ -20,19 +23,15 @@ class Engine {
 
   def evalDefinition(name: String, src: String): V = {
     val v = eval(Parser.parse(src))
-    env = env + (name -> v)
+    define(name, v)
     v
   }
 
-  def interact(protocol: V, state: V, vector: V): (V, Seq[V]) = {
-    unwrapAll(evalApp(evalApp(protocol, state), vector)) match {
-      case V.Cons(flag, V.Cons(newState, V.Cons(data, V.Nil))) =>
-        val multipledraw = Tree.Ap(Tree.F1("multipledraw"), Tree.Value(data))
-        if (flag == V.Num(0)) (newState, V.toSeq(unwrapAll(eval(multipledraw))))
-        else interact(protocol, newState, handleSend(V.Mod(data)))
-      case unk => throw new RuntimeException(s"Unexpected value: $unk")
-    }
+  def define(name: String, v: V): Unit = {
+    env = env + (name -> v)
   }
+
+  def getVar(name: String): V = env(name)
 
   def unwrapAll(v: V): V =
     unwrap(v) match {

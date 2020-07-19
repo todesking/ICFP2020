@@ -20,6 +20,8 @@ object AlienProxy {
         s"HTTP status ${response.statusCode}: ${response.body}"
       )
     }
-    response.body
+    val res = response.body
+    println(s"[AlienProxy] $data => $res")
+    res
   }
 }
