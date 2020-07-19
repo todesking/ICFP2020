@@ -18,7 +18,7 @@ object Parser {
         case name @ ("add" | "mul" | "div" | "eq" | "lt") =>
           index += 1
           Tree.F2(name)
-        case name @ ("s" | "c") =>
+        case name @ ("s" | "c" | "b") =>
           index += 1
           Tree.F3(name)
         case "ap" =>

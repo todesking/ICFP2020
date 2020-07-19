@@ -94,4 +94,7 @@ class Test extends AnyFunSpec {
   it("19. C combinator") {
     assertEval("ap ap ap c add 1 2", V.Num(3))
   }
+  it("20. B combinator") {
+    assertEval("ap ap ap b inc dec 10", V.Num(10))
+  }
 }

@@ -51,6 +51,7 @@ class Engine {
         name match {
           case "s" => evalApp(evalApp(x0, x), evalApp(x1, x))
           case "c" => evalApp(evalApp(x0, x), x1)
+          case "b" => evalApp(x0, evalApp(x1, x))
           case unk => throw new AssertionError(s"Unknown F3 name: $unk")
         }
       case unk =>
