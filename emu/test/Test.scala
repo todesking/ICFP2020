@@ -20,6 +20,10 @@ class Test extends AnyFunSpec {
   def handle(send: PartialFunction[V, V] = { x => x }): Ctx =
     new Ctx(send)
 
+  it("Parse fail unless all input is consumed") {
+    Parser.parse("ap 1 2") // success
+    assertThrows[RuntimeException] { Parser.parse("ap 1") }
+  }
   it("1. nums") {
     assertEval("1", V.Num(1))
   }
@@ -134,5 +138,8 @@ class Test extends AnyFunSpec {
     assertEval("()", V.Nil)
     assertEval("(1)", V.Cons(V.Num(1), V.Nil))
     assertEval("(1, 2)", V.Cons(V.Num(1), V.Cons(V.Num(2), V.Nil)))
+  }
+  it("30. vector") {
+    assertEval("ap ap vec 1 2", V.Cons(V.Num(1), V.Num(2)))
   }
 }

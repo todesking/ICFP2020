@@ -7,6 +7,13 @@ object Parser {
     def peek(n: Int) =
       data(index + n)
 
+    def parseToEnd(): Tree = {
+      val t = parse()
+      if (index < data.size)
+        throw new RuntimeException(s"Input not all consumed($index)")
+      else t
+    }
+
     val ReNum = """(-?[0-9]+)""".r
     def parse(): Tree =
       peek(0) match {
@@ -17,8 +24,8 @@ object Parser {
             "i" | "car" | "cdr" | "nil" | "isnil") =>
           move(1)
           Tree.F1(name)
-        case name @ ("add" | "mul" | "div" | "eq" | "lt" | "t" | "f" |
-            "cons") =>
+        case name @ ("add" | "mul" | "div" | "eq" | "lt" | "t" | "f" | "cons" |
+            "vec") =>
           move(1)
           Tree.F2(name)
         case name @ ("s" | "c" | "b") =>
@@ -60,6 +67,6 @@ object Parser {
       .replace("(", " ( ")
       .replace(")", " ) ")
       .replace(",", " , ")
-    Ctx(s.split("""\s+""").toSeq.filter(_.nonEmpty), 0).parse()
+    Ctx(s.split("""\s+""").toSeq.filter(_.nonEmpty), 0).parseToEnd()
   }
 }

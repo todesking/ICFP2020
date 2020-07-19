@@ -71,7 +71,7 @@ class Engine {
             x1
           case "f" =>
             x
-          case "cons" =>
+          case "cons" | "vec" =>
             V.Cons(x1, x)
           case unk =>
             throw new AssertionError(s"Unknown F2 name: $unk")
