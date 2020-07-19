@@ -20,7 +20,10 @@ class Engine {
   }
 
   def evalAll(src: String): V =
-    unwrapAll(eval(Parser.parse(src)))
+    unwrapAll(eval(src))
+
+  def eval(src: String): V =
+    eval(Parser.parse(src))
 
   def define(name: String, src: String): Unit = {
     envTree = envTree + (name -> Parser.parse(src))
@@ -64,18 +67,7 @@ class Engine {
 
   def evalLazy(tree: Tree): V =
     tree match {
-      case Var(name) =>
-        env.getOrElse(
-          name, {
-            val tree = envTree.getOrElse(
-              name,
-              throw new RuntimeException(s"Unbound var: $name")
-            )
-            val v = eval(tree)
-            env = env + (name -> v)
-            v
-          }
-        )
+      case Var(name)  => V.LazyRef(name)
       case Value(v)   => v
       case Num(n)     => V.Num(n)
       case F1(f)      => V.F1(f)
@@ -99,6 +91,12 @@ class Engine {
             case V.LazyApp(f, t) => throw new AssertionError(s"$v")
             case _               => a
           }
+        case V.LazyRef(name) =>
+          val tree = envTree.getOrElse(
+            name,
+            throw new RuntimeException(s"Unbound var: $name")
+          )
+          eval(tree)
         case v =>
           v
       }
@@ -126,12 +124,12 @@ class Engine {
             unwrap(x)
           case "car" =>
             unwrap(x) match {
-              case V.Cons(car, cdr) => car
+              case V.Cons(car, cdr) => unwrap(car)
               case f                => evalApp(f, V.True)
             }
           case "cdr" =>
             unwrap(x) match {
-              case V.Cons(car, cdr) => cdr
+              case V.Cons(car, cdr) => unwrap(cdr)
               case f                => evalApp(f, V.False)
             }
           case "nil" =>

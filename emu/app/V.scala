@@ -52,6 +52,7 @@ object V {
   }
 
   case class LazyApp(f: V, x: V) extends V
+  case class LazyRef(name: String) extends V
 
   case class Mod(v: V) extends V {
     override def toString = s"mod($v)"
