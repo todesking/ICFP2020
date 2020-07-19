@@ -117,4 +117,10 @@ class Test extends AnyFunSpec {
     assertEval("ap ap ap cons 1 2 t", V.Num(1))
     assertEval("ap ap ap cons 1 2 f", V.Num(2))
   }
+  it("25. car") {
+    assertEval("ap car ap ap cons 1 2", V.Num(1))
+  }
+  it("26. cdr") {
+    assertEval("ap cdr ap ap cons 1 2", V.Num(2))
+  }
 }

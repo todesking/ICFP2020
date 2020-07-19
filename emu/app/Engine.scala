@@ -33,6 +33,16 @@ class Engine {
             else V.Num(1 << n)
           case "i" =>
             x
+          case "car" =>
+            x match {
+              case V.Cons(car, cdr) => car
+              case f                => evalApp(f, V.True)
+            }
+          case "cdr" =>
+            x match {
+              case V.Cons(car, cdr) => cdr
+              case f                => evalApp(f, V.False)
+            }
           case unk => throw new AssertionError(s"Unknown F1 name: $unk")
         }
       case V.F2(name) => V.F2X(name, x)
