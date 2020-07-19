@@ -9,6 +9,7 @@ object V {
   }
 
   case class Cons(car: V, cdr: V) extends V
+  val Nil = F1("nil")
 
   val True = F2("t")
   val False = F2("f")

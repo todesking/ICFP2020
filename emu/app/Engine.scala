@@ -45,6 +45,13 @@ class Engine {
             }
           case "nil" =>
             V.True
+          case "isnil" =>
+            x match {
+              case V.Nil        => V.True
+              case V.Cons(_, _) => V.False
+              case unk =>
+                throw new NotImplementedError("isnil <unknown-closure>")
+            }
           case unk => throw new AssertionError(s"Unknown F1 name: $unk")
         }
       case V.F2(name) => V.F2X(name, x)

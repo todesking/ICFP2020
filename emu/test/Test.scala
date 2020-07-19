@@ -126,4 +126,8 @@ class Test extends AnyFunSpec {
   it("27. nil") {
     assertEval("ap nil 0", V.True)
   }
+  it("28. isnil") {
+    assertEval("ap isnil nil", V.True)
+    assertEval("ap isnil ap ap cons 1 2", V.False)
+  }
 }
