@@ -21,6 +21,13 @@ class Engine {
     ap ap b ap s mul div ap ap c ap ap b b checkerboard ap ap c add 2
   """))
 
+  val statelessdraw = eval(Parser.parse("""
+    ap ap c ap ap b b ap ap b ap b ap cons 0 ap ap c ap ap b b cons ap ap c cons nil ap ap c ap ap b cons ap ap c cons nil nil
+  """))
+  val statefuldraw = eval(Parser.parse("""
+    ap ap b ap b ap ap s ap ap b ap b ap cons 0 ap ap c ap ap b b cons ap ap c cons nil ap ap c cons nil ap c cons
+  """))
+
   import Tree._
   def eval(tree: Tree): V =
     cache.getOrElseUpdate(

@@ -57,4 +57,56 @@ object V {
     override def toString = s"mod($v)"
   }
 
+  def modulate(v: V): String =
+    v match {
+      case V.Num(n) =>
+        val abs = if (n < 0) -n else n
+        val data = if (n == 0) "" else Integer.toString(abs, 2)
+        val padding =
+          if (data.size % 4 == 0) ""
+          else (0 until (4 - data.size % 4)).map { _ => "0" }.mkString("")
+
+        val bodyPart = padding + data
+        val len = bodyPart.size / 4
+        val sigPart = if (n >= 0) "01" else "10"
+        val lenPart = (0 until len).map { _ => "1" }.mkString("") + "0"
+
+        sigPart + lenPart + bodyPart
+      case unk => throw new RuntimeException(s"Can't modulate $v")
+    }
+
+  def demodulate(s: String) = new ModParser(s, 0).parse()
+  class ModParser(s: String, var i: Int) {
+    def peek(n: Int) = s(i + n)
+    def peek(n: Int, l: Int) = s.substring(i + n, i + n + l)
+    def move(n: Int) = {
+      i += n
+    }
+    def parse(): V = {
+      if (peek(0) == '0' && peek(1) == '1') {
+        move(2)
+        V.Num(parseAbs())
+      } else if (peek(0) == '1' && peek(1) == '0') {
+        move(2)
+        V.Num(-1 * parseAbs())
+      } else {
+        throw new RuntimeException(s"Demodulate failed at $i: s=$s")
+      }
+    }
+
+    def parseAbs() = {
+      var len = 0
+      while (peek(0) == '1') {
+        move(1)
+        len += 1
+      }
+      move(1) // trailing 0
+      if (len == 0) 0
+      else {
+        val n = Integer.parseInt(peek(0, len * 4), 2)
+        move(len * 4)
+        n
+      }
+    }
+  }
 }

@@ -296,4 +296,31 @@ class Test extends AnyFunSpec {
   it("38. interact") {
     assertEval("interact", V.F3("interact"))
   }
+  it("39. interaction protocol") {
+    pending
+  }
+  it("40. stateless drawing protocol") {
+    pending
+  }
+  it("41. stateful drawing protocol") {
+    pending
+  }
+  it("modulation") {
+    assert(V.modulate(V.Num(0)) == "010")
+    assert(V.modulate(V.Num(1)) == "01100001")
+    assert(V.modulate(V.Num(-1)) == "10100001")
+    assert(V.modulate(V.Num(256)) == "011110000100000000")
+  }
+  it("demodulation") {
+    def ok(n: Int) = {
+      assert(V.demodulate(V.modulate(V.Num(n))) == V.Num(n))
+    }
+    ok(0)
+    ok(1)
+    ok(-1)
+    ok(255)
+    ok(256)
+    ok(-256)
+    assert(V.demodulate("0111000010001") == V.Num(17))
+  }
 }
