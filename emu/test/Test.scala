@@ -307,8 +307,8 @@ class Test extends AnyFunSpec {
   }
   it("variable definition") {
     val engine = new Engine()
-    engine.evalDefinition(":1", "1")
-    engine.evalDefinition(":2", "ap cons 0")
+    engine.define(":1", "1")
+    engine.define(":2", "ap cons 0")
     assert(engine.evalAll("ap :2 1") == V.Cons(V.Num(0), V.Num(1)))
   }
   it("modulation num") {

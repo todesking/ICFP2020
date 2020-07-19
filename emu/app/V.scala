@@ -51,7 +51,7 @@ object V {
     override def toString = s"$name($x1, $x2, _)"
   }
 
-  case class Lazy(tree: Tree) extends V
+  case class LazyApp(f: V, x: V) extends V
 
   case class Mod(v: V) extends V {
     override def toString = s"mod($v)"

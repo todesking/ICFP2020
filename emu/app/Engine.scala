@@ -3,6 +3,7 @@ import java.nio.file.Paths
 import scala.jdk.CollectionConverters._
 
 class Engine {
+  private[this] var envTree = Map.empty[String, Tree]
   private[this] var env = Map.empty[String, V]
 
   var alienProxyEnabled: Boolean = false
@@ -13,18 +14,17 @@ class Engine {
       case `linePat`(name, src) =>
         define(
           if (name(0) == ':') name else ":" + name,
-          V.Lazy(Parser.parse(src))
+          src
         )
     }
   }
 
   def evalAll(src: String): V =
-    unwrapAll(evalStrict(Parser.parse(src)))
+    unwrapAll(eval(Parser.parse(src)))
 
-  def evalDefinition(name: String, src: String): V = {
-    val v = eval(Parser.parse(src))
-    define(name, v)
-    v
+  def define(name: String, src: String): Unit = {
+    envTree = envTree + (name -> Parser.parse(src))
+    env = env.removed(name)
   }
 
   def define(name: String, v: V): Unit = {
@@ -36,12 +36,11 @@ class Engine {
   def unwrapAll(v: V): V =
     unwrap(v) match {
       case V.Cons(car, cdr) => V.Cons(unwrapAll(car), unwrapAll(cdr))
-      case V.Lazy(tree)     => unwrapAll(evalStrict(tree))
       case V.Mod(v)         => V.Mod(unwrapAll(v))
       case v                => v
     }
 
-  private[this] val cache = scala.collection.mutable.HashMap.empty[Tree, V]
+  private[this] val cache = scala.collection.mutable.HashMap.empty[V, V]
 
   val checkerboard = eval(Parser.parse("""
     ap ap s ap ap b s ap ap c ap ap b c ap ap b ap c ap c
@@ -61,25 +60,28 @@ class Engine {
 
   import Tree._
   def eval(tree: Tree): V =
-    cache.getOrElseUpdate(
-      tree,
-      tree match {
-        case Var(name) =>
-          env.getOrElse(name, throw new RuntimeException(s"Unbound var: $name"))
-        case Value(v) => v
-        case Num(n)   => V.Num(n)
-        case F1(f)    => V.F1(f)
-        case F2(f)    => V.F2(f)
-        case F3(f)    => V.F3(f)
-        case tree @ Ap(tf, tx) =>
-          evalApp(eval(tf), V.Lazy(tx))
-      }
-    )
+    unwrap(evalLazy(tree))
 
-  def evalStrict(tree: Tree): V =
-    eval(tree) match {
-      case V.Lazy(tree) => unwrap(eval(tree))
-      case v            => v
+  def evalLazy(tree: Tree): V =
+    tree match {
+      case Var(name) =>
+        env.getOrElse(
+          name, {
+            val tree = envTree.getOrElse(
+              name,
+              throw new RuntimeException(s"Unbound var: $name")
+            )
+            val v = eval(tree)
+            env = env + (name -> v)
+            v
+          }
+        )
+      case Value(v)   => v
+      case Num(n)     => V.Num(n)
+      case F1(f)      => V.F1(f)
+      case F2(f)      => V.F2(f)
+      case F3(f)      => V.F3(f)
+      case Ap(tf, tx) => V.LazyApp(evalLazy(tf), evalLazy(tx))
     }
 
   def unwrapInt(v: V): Long =
@@ -88,15 +90,22 @@ class Engine {
       case unk      => throw new RuntimeException(s"Int required: $unk")
     }
   def unwrap(v: V): V =
-    v match {
-      case V.Lazy(tree) => evalStrict(tree)
-      case v            => v
-    }
+    cache.getOrElseUpdate(
+      v,
+      v match {
+        case V.LazyApp(f, t) =>
+          val a = evalApp(f, t)
+          a match {
+            case V.LazyApp(f, t) => throw new AssertionError(s"$v")
+            case _               => a
+          }
+        case v =>
+          v
+      }
+    )
 
   def evalApp(f: V, x: V): V =
-    f match {
-      case V.Lazy(tree) =>
-        V.Lazy(Tree.Ap(tree, Tree.Value(x)))
+    unwrap(f) match {
       case V.F1(name) =>
         name match {
           case "inc" => V.Num(unwrapInt(x) + 1)
@@ -104,7 +113,7 @@ class Engine {
           case "mod" => V.Mod(x)
           case "dem" =>
             unwrap(x) match {
-              case V.Mod(v) => v
+              case V.Mod(v) => unwrap(v)
               case unk      => throw new RuntimeException(s"ModNum expected: $x")
             }
           case "send" => handleSend(unwrap(x))
@@ -114,7 +123,7 @@ class Engine {
             if (n < 0) throw new RuntimeException(s"pwr2: n >= 0 required: $n")
             else V.Num(1 << n.toInt)
           case "i" =>
-            x
+            unwrap(x)
           case "car" =>
             unwrap(x) match {
               case V.Cons(car, cdr) => car
@@ -187,9 +196,9 @@ class Engine {
           case "lt" =>
             V.bool(unwrapInt(x1) < unwrapInt(x))
           case "t" =>
-            x1
+            unwrap(x1)
           case "f" =>
-            x
+            unwrap(x)
           case "cons" | "vec" =>
             V.Cons(x1, x)
           case "checkerboard" =>
@@ -201,9 +210,9 @@ class Engine {
       case V.F3X(name, x1) => V.F3XX(name, x1, x)
       case V.F3XX(name, x0, x1) =>
         name match {
-          case "s" => evalApp(evalApp(x0, x), evalApp(x1, x))
+          case "s" => evalApp(evalApp(x0, x), V.LazyApp(x1, x))
           case "c" => evalApp(evalApp(x0, x), x1)
-          case "b" => evalApp(x0, evalApp(x1, x))
+          case "b" => evalApp(x0, V.LazyApp(x1, x))
           case "if0" =>
             unwrap(x0) match {
               case V.Num(0) => x1
