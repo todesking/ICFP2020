@@ -97,4 +97,12 @@ class Test extends AnyFunSpec {
   it("20. B combinator") {
     assertEval("ap ap ap b inc dec 10", V.Num(10))
   }
+  it("21. true(K combinator)") {
+    assertEval("ap ap t 1 5", V.Num(1))
+    assertEval("ap ap t t ap inc 5", V.True)
+    assertEval("ap ap t ap inc 5 t", V.Num(6))
+  }
+  it("22. False") {
+    assertEval("ap ap f 1 5", V.Num(5))
+  }
 }

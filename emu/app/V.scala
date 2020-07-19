@@ -7,8 +7,8 @@ object V {
   case class Num(v: Int) extends V {
     override def toInt = v
   }
-  case object True extends V
-  case object False extends V
+  val True = F2("t")
+  val False = F2("f")
 
   case class F1(name: String) extends V
   case class F2(name: String) extends V

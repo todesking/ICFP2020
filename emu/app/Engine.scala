@@ -42,6 +42,10 @@ class Engine {
             V.bool(x1 == x)
           case "lt" =>
             V.bool(x1.toInt < x.toInt)
+          case "t" =>
+            x1
+          case "f" =>
+            x
           case unk =>
             throw new AssertionError(s"Unknown F2 name: $unk")
         }
