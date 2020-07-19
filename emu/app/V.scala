@@ -6,6 +6,7 @@ object V {
 
   case class Num(v: Int) extends V {
     override def toInt = v
+    override def toString = s"$v"
   }
 
   def newPic(w: Int, h: Int) = {
@@ -34,13 +35,27 @@ object V {
   val True = F2("t")
   val False = F2("f")
 
-  case class F1(name: String) extends V
-  case class F2(name: String) extends V
-  case class F2X(name: String, x: V) extends V
-  case class F3(name: String) extends V
-  case class F3X(name: String, x: V) extends V
-  case class F3XX(name: String, x1: V, x2: V) extends V
+  case class F1(name: String) extends V {
+    override def toString = s"$name:1"
+  }
+  case class F2(name: String) extends V {
+    override def toString = s"$name:2"
+  }
+  case class F2X(name: String, x: V) extends V {
+    override def toString = s"$name($x, _)"
+  }
+  case class F3(name: String) extends V {
+    override def toString = s"$name:3"
+  }
+  case class F3X(name: String, x: V) extends V {
+    override def toString = s"$name($x, _, _)"
+  }
+  case class F3XX(name: String, x1: V, x2: V) extends V {
+    override def toString = s"$name($x1, $x2, _)"
+  }
 
-  case class ModNum(v: Int) extends V
+  case class ModNum(v: Int) extends V {
+    override def toString = s"mod($v)"
+  }
 
 }
