@@ -6,6 +6,11 @@ class Engine {
   private[this] var envTree = Map.empty[String, Tree]
   private[this] var env = Map.empty[String, V]
 
+  var picW = 19
+  var picH = 15
+  var picOffW = 0
+  var picOffH = 0
+
   var alienProxyEnabled: Boolean = false
 
   def loadFile(path: String): Unit = {
@@ -161,7 +166,7 @@ class Engine {
                     s"List[(Int, Int)] required: $unk"
                   )
               }
-            val init = V.newPic(19, 15)
+            val init = V.newPic(picW, picH, picOffW, picOffH)
             draw(init, x)
           case "multipledraw" =>
             def go(x: V): V = {

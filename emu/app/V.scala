@@ -6,21 +6,25 @@ object V {
     override def toString = s"$v"
   }
 
-  def newPic(w: Int, h: Int) = {
+  def newPic(w: Int, h: Int, offW: Int, offH: Int) = {
     val data = (0 until h).map { _ =>
       (0 until w).map { _ => false }.toVector
     }.toVector
-    Pic(data)
+    Pic(data, offW, offH)
   }
 
-  case class Pic(data: Seq[Seq[Boolean]]) extends V {
+  case class Pic(data: Seq[Seq[Boolean]], offW: Int, offH: Int) extends V {
     override def toString =
       data
         .map { row =>
           row.map { x => if (x) "*" else "_" }.mkString("")
         }
         .mkString("\n")
-    def put(x: Long, y: Long): Pic = {
+
+    def put(x: Long, y: Long): Pic =
+      putAbs(x + offW, y + offH)
+
+    def putAbs(x: Long, y: Long): Pic = {
       val updated = data.updated(y.toInt, data(y.toInt).updated(x.toInt, true))
       copy(data = updated)
     }
