@@ -28,7 +28,7 @@ object Parser {
             "vec" | "checkerboard") =>
           move(1)
           Tree.F2(name)
-        case name @ ("s" | "c" | "b" | "if0") =>
+        case name @ ("s" | "c" | "b" | "if0" | "interact") =>
           index += 1
           Tree.F3(name)
         case "ap" =>

@@ -293,4 +293,7 @@ class Test extends AnyFunSpec {
     assertEval("ap ap ap if0 0 1 2", V.Num(1))
     assertEval("ap ap ap if0 9 1 2", V.Num(2))
   }
+  it("38. interact") {
+    assertEval("interact", V.F3("interact"))
+  }
 }
