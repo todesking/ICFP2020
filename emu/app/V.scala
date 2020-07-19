@@ -53,7 +53,7 @@ object V {
 
   case class Lazy(tree: Tree) extends V
 
-  case class ModNum(v: Int) extends V {
+  case class Mod(v: V) extends V {
     override def toString = s"mod($v)"
   }
 

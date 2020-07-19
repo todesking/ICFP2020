@@ -62,7 +62,7 @@ class Test extends AnyFunSpec {
     assertEval("ap ap lt 1 2", V.True)
   }
   it("13. modulate") {
-    assertEval("ap mod 0", V.ModNum(0))
+    assertEval("ap mod 0", V.Mod(V.Num(0)))
   }
   it("14. demodulate") {
     assertEval("ap dem ap mod 0", V.Num(0))
@@ -278,5 +278,14 @@ class Test extends AnyFunSpec {
       |D ___________________
       |E ___________________
     """))
+  }
+  it("35. modulate list") {
+    assertEval("ap mod nil", V.Mod(V.Nil))
+    assertEval("ap mod (nil)", V.Mod(V.Cons(V.Nil, V.Nil)))
+    assertEval("ap mod ap ap cons 1 2", V.Mod(V.Cons(V.Num(1), V.Num(2))))
+    assertEval(
+      "ap mod (1, 2)",
+      V.Mod(V.Cons(V.Num(1), V.Cons(V.Num(2), V.Nil)))
+    )
   }
 }

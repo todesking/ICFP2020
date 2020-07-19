@@ -6,6 +6,7 @@ class Engine {
     unwrap(v) match {
       case V.Cons(car, cdr) => V.Cons(unwrapAll(car), unwrapAll(cdr))
       case V.Lazy(tree)     => unwrapAll(evalStrict(tree))
+      case V.Mod(v)         => V.Mod(unwrapAll(v))
       case v                => v
     }
 
@@ -60,11 +61,11 @@ class Engine {
         name match {
           case "inc" => V.Num(unwrapInt(x) + 1)
           case "dec" => V.Num(unwrapInt(x) - 1)
-          case "mod" => V.ModNum(unwrapInt(x))
+          case "mod" => V.Mod(x)
           case "dem" =>
             unwrap(x) match {
-              case V.ModNum(n) => V.Num(n)
-              case unk         => throw new RuntimeException(s"ModNum expected: $x")
+              case V.Mod(v) => v
+              case unk      => throw new RuntimeException(s"ModNum expected: $x")
             }
           case "send" => handleSend(unwrap(x))
           case "neg"  => V.Num(-unwrapInt(x))
