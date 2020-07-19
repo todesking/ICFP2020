@@ -130,4 +130,9 @@ class Test extends AnyFunSpec {
     assertEval("ap isnil nil", V.True)
     assertEval("ap isnil ap ap cons 1 2", V.False)
   }
+  it("29. list") {
+    assertEval("()", V.Nil)
+    assertEval("(1)", V.Cons(V.Num(1), V.Nil))
+    assertEval("(1, 2)", V.Cons(V.Num(1), V.Cons(V.Num(2), V.Nil)))
+  }
 }
