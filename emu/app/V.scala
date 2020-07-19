@@ -7,6 +7,9 @@ object V {
   case class Num(v: Int) extends V {
     override def toInt = v
   }
+
+  case class Cons(car: V, cdr: V) extends V
+
   val True = F2("t")
   val False = F2("f")
 

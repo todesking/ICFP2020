@@ -52,6 +52,8 @@ class Engine {
             x1
           case "f" =>
             x
+          case "cons" =>
+            V.Cons(x1, x)
           case unk =>
             throw new AssertionError(s"Unknown F2 name: $unk")
         }
@@ -64,6 +66,8 @@ class Engine {
           case "b" => evalApp(x0, evalApp(x1, x))
           case unk => throw new AssertionError(s"Unknown F3 name: $unk")
         }
+      case V.Cons(x0, x1) =>
+        evalApp(evalApp(x, x0), x1)
       case unk =>
         throw new RuntimeException(s"Function required: $f")
     }
