@@ -105,4 +105,8 @@ class Test extends AnyFunSpec {
   it("22. False") {
     assertEval("ap ap f 1 5", V.Num(5))
   }
+  it("23. power of 2") {
+    assertEval("ap pwr2 2", V.Num(4))
+    assertEval("ap pwr2 3", V.Num(8))
+  }
 }

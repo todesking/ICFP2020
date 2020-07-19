@@ -27,7 +27,11 @@ class Engine {
             }
           case "send" => handleSend(x)
           case "neg"  => V.Num(-x.toInt)
-          case unk    => throw new AssertionError(s"Unknown F1 name: $unk")
+          case "pwr2" =>
+            val n = x.toInt
+            if (n < 0) throw new RuntimeException(s"pwr2: n >= 0 required: $n")
+            else V.Num(1 << n)
+          case unk => throw new AssertionError(s"Unknown F1 name: $unk")
         }
       case V.F2(name) => V.F2X(name, x)
       case V.F2X(name, x1) =>
