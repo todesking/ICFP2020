@@ -43,6 +43,8 @@ class Engine {
               case V.Cons(car, cdr) => cdr
               case f                => evalApp(f, V.False)
             }
+          case "nil" =>
+            V.True
           case unk => throw new AssertionError(s"Unknown F1 name: $unk")
         }
       case V.F2(name) => V.F2X(name, x)

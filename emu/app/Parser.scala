@@ -13,7 +13,7 @@ object Parser {
           index += 1
           Tree.Num(n.toInt)
         case name @ ("inc" | "dec" | "mod" | "dem" | "send" | "neg" | "pwr2" |
-            "i" | "car" | "cdr") =>
+            "i" | "car" | "cdr" | "nil") =>
           index += 1
           Tree.F1(name)
         case name @ ("add" | "mul" | "div" | "eq" | "lt" | "t" | "f" |
