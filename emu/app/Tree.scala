@@ -5,6 +5,7 @@ object Tree {
   case class F1(name: String) extends Tree
   case class F2(name: String) extends Tree
   case class F3(name: String) extends Tree
+  case class Value(v: V) extends Tree
 
   case class Ap(f: Tree, x: Tree) extends Tree
 }

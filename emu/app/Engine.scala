@@ -5,6 +5,7 @@ class Engine {
   def unwrapAll(v: V): V =
     unwrap(v) match {
       case V.Cons(car, cdr) => V.Cons(unwrapAll(car), unwrapAll(cdr))
+      case V.Lazy(tree)     => unwrapAll(evalStrict(tree))
       case v                => v
     }
 
@@ -24,10 +25,11 @@ class Engine {
     cache.getOrElseUpdate(
       tree,
       tree match {
-        case Num(n) => V.Num(n)
-        case F1(f)  => V.F1(f)
-        case F2(f)  => V.F2(f)
-        case F3(f)  => V.F3(f)
+        case Value(v) => v
+        case Num(n)   => V.Num(n)
+        case F1(f)    => V.F1(f)
+        case F2(f)    => V.F2(f)
+        case F3(f)    => V.F3(f)
         case tree @ Ap(tf, tx) =>
           evalApp(eval(tf), V.Lazy(tx))
       }
@@ -35,7 +37,7 @@ class Engine {
 
   def evalStrict(tree: Tree): V =
     eval(tree) match {
-      case V.Lazy(tree) => eval(tree)
+      case V.Lazy(tree) => unwrap(eval(tree))
       case v            => v
     }
 
@@ -51,7 +53,9 @@ class Engine {
     }
 
   def evalApp(f: V, x: V): V =
-    unwrap(f) match {
+    f match {
+      case V.Lazy(tree) =>
+        V.Lazy(Tree.Ap(tree, Tree.Value(x)))
       case V.F1(name) =>
         name match {
           case "inc" => V.Num(unwrapInt(x) + 1)

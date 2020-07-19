@@ -191,7 +191,7 @@ class Test extends AnyFunSpec {
     """))
   }
   it("33. checkerboard") {
-    val p1 = handle().eval("ap ap checkerboard 3 0")
+    val p1 = handle().eval("ap draw ap ap checkerboard 3 0")
     //   0    5    A    5
     assert(p1.toString == pic("""
       |0 *_*________________
@@ -210,7 +210,7 @@ class Test extends AnyFunSpec {
       |D ___________________
       |E ___________________
     """))
-    val p2 = handle().eval("ap ap checkerboard 5 0")
+    val p2 = handle().eval("ap draw ap ap checkerboard 5 0")
     //   0    5    A    5
     assert(p2.toString == pic("""
       |0 *_*_*______________
@@ -229,6 +229,5 @@ class Test extends AnyFunSpec {
       |D ___________________
       |E ___________________
     """))
-    println(handle().eval("ap ap checkerboard 5 1"))
   }
 }
