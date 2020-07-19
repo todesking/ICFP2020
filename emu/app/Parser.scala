@@ -25,7 +25,7 @@ object Parser {
           move(1)
           Tree.F1(name)
         case name @ ("add" | "mul" | "div" | "eq" | "lt" | "t" | "f" | "cons" |
-            "vec") =>
+            "vec" | "checkerboard") =>
           move(1)
           Tree.F2(name)
         case name @ ("s" | "c" | "b") =>

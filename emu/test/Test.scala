@@ -144,10 +144,11 @@ class Test extends AnyFunSpec {
   it("31. vector") {
     assertEval("ap ap vec 1 2", V.Cons(V.Num(1), V.Num(2)))
   }
-  it("32. draw") {
-    def pic(s: String) =
-      s.stripMargin.tail.split("\n").init.map(_.substring(2)).mkString("\n")
 
+  def pic(s: String) =
+    s.stripMargin.tail.split("\n").init.map(_.substring(2)).mkString("\n")
+
+  it("32. draw") {
     val p1 = handle().eval("ap draw ( ap ap vec 1 2 )").asInstanceOf[V.Pic]
     //   0    5    A    5
     assert(p1.toString == pic("""
@@ -188,5 +189,46 @@ class Test extends AnyFunSpec {
       |D ___________________
       |E ___________________
     """))
+  }
+  it("33. checkerboard") {
+    val p1 = handle().eval("ap ap checkerboard 3 0")
+    //   0    5    A    5
+    assert(p1.toString == pic("""
+      |0 *_*________________
+      |1 _*_________________
+      |2 *_*________________
+      |3 ___________________
+      |4 ___________________
+      |5 ___________________
+      |6 ___________________
+      |7 ___________________
+      |8 ___________________
+      |9 ___________________
+      |A ___________________
+      |B ___________________
+      |C ___________________
+      |D ___________________
+      |E ___________________
+    """))
+    val p2 = handle().eval("ap ap checkerboard 5 0")
+    //   0    5    A    5
+    assert(p2.toString == pic("""
+      |0 *_*_*______________
+      |1 _*_*_______________
+      |2 *_*_*______________
+      |3 _*_*_______________
+      |4 *_*_*______________
+      |5 ___________________
+      |6 ___________________
+      |7 ___________________
+      |8 ___________________
+      |9 ___________________
+      |A ___________________
+      |B ___________________
+      |C ___________________
+      |D ___________________
+      |E ___________________
+    """))
+    println(handle().eval("ap ap checkerboard 5 1"))
   }
 }

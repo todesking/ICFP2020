@@ -2,6 +2,15 @@ class Engine {
   def eval(src: String): V =
     eval(Parser.parse(src))
 
+  val checkerboard = eval(Parser.parse("""
+    ap ap s ap ap b s ap ap c ap ap b c ap ap b ap c ap c
+    ap ap s ap ap b s ap ap b ap b ap ap s i i lt eq
+    ap ap s mul i nil ap ap s ap ap b s ap ap b ap b cons
+    ap ap s ap ap b s ap ap b ap b cons ap c div ap c
+    ap ap s ap ap b b ap ap c ap ap b b add neg
+    ap ap b ap s mul div ap ap c ap ap b b checkerboard ap ap c add 2
+  """))
+
   import Tree._
   def eval(tree: Tree): V =
     tree match {
@@ -95,6 +104,8 @@ class Engine {
             x
           case "cons" | "vec" =>
             V.Cons(x1, x)
+          case "checkerboard" =>
+            evalApp(evalApp(checkerboard, x1), x)
           case unk =>
             throw new AssertionError(s"Unknown F2 name: $unk")
         }
