@@ -72,7 +72,9 @@ object V {
         val lenPart = (0 until len).map { _ => "1" }.mkString("") + "0"
 
         sigPart + lenPart + bodyPart
-      case unk => throw new RuntimeException(s"Can't modulate $v")
+      case V.Nil            => "00"
+      case V.Cons(car, cdr) => "11" + modulate(car) + modulate(cdr)
+      case unk              => throw new RuntimeException(s"Can't modulate $v")
     }
 
   def demodulate(s: String) = new ModParser(s, 0).parse()
@@ -89,6 +91,14 @@ object V {
       } else if (peek(0) == '1' && peek(1) == '0') {
         move(2)
         V.Num(-1 * parseAbs())
+      } else if (peek(0) == '0' && peek(1) == '0') {
+        move(2)
+        V.Nil
+      } else if (peek(0) == '1' && peek(1) == '1') {
+        move(2)
+        val car = parse()
+        val cdr = parse()
+        V.Cons(car, cdr)
       } else {
         throw new RuntimeException(s"Demodulate failed at $i: s=$s")
       }

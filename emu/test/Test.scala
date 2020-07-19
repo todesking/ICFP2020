@@ -305,13 +305,13 @@ class Test extends AnyFunSpec {
   it("41. stateful drawing protocol") {
     pending
   }
-  it("modulation") {
+  it("modulation num") {
     assert(V.modulate(V.Num(0)) == "010")
     assert(V.modulate(V.Num(1)) == "01100001")
     assert(V.modulate(V.Num(-1)) == "10100001")
     assert(V.modulate(V.Num(256)) == "011110000100000000")
   }
-  it("demodulation") {
+  it("demodulation num") {
     def ok(n: Int) = {
       assert(V.demodulate(V.modulate(V.Num(n))) == V.Num(n))
     }
@@ -322,5 +322,18 @@ class Test extends AnyFunSpec {
     ok(256)
     ok(-256)
     assert(V.demodulate("0111000010001") == V.Num(17))
+  }
+  it("modulation list") {
+    assert(V.modulate(V.Nil) == "00")
+    assert(V.modulate(V.Cons(V.Nil, V.Nil)) == "110000")
+    assert(V.modulate(V.Cons(V.Num(0), V.Nil)) == "1101000")
+  }
+  it("demodulation list") {
+    def ok(v: V) = {
+      assert(V.demodulate(V.modulate(v)) == v)
+    }
+    ok(V.Nil)
+    ok(V.Cons(V.Num(255), V.Num(-1)))
+    ok(V.Cons(V.Num(0), V.Cons(V.Cons(V.Nil, V.Num(1)), V.Nil)))
   }
 }
