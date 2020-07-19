@@ -164,6 +164,11 @@ class Engine {
           case "s" => evalApp(evalApp(x0, x), evalApp(x1, x))
           case "c" => evalApp(evalApp(x0, x), x1)
           case "b" => evalApp(x0, evalApp(x1, x))
+          case "if0" =>
+            unwrap(x0) match {
+              case V.Num(0) => x1
+              case _        => x
+            }
           case unk => throw new AssertionError(s"Unknown F3 name: $unk")
         }
       case V.Cons(x0, x1) =>

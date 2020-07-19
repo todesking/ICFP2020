@@ -288,4 +288,9 @@ class Test extends AnyFunSpec {
       V.Mod(V.Cons(V.Num(1), V.Cons(V.Num(2), V.Nil)))
     )
   }
+  // 36. send(0)
+  it("37. Is 0") {
+    assertEval("ap ap ap if0 0 1 2", V.Num(1))
+    assertEval("ap ap ap if0 9 1 2", V.Num(2))
+  }
 }
