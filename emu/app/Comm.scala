@@ -11,6 +11,19 @@ class Comm(val engine: Engine) {
       case unk => throw new RuntimeException(s"Unexpected value: $unk")
     }
   }
+
+  class Ctx(protocol: V, state: V) {
+    def apply(x: Int, y: Int): Ctx =
+      interactLoop(protocol, state, V.Cons(V.Num(x), V.Num(y)))
+  }
+  def interactLoop(protocol: V, state: V, vector: V): Ctx = {
+    val (newState, res) = interact(protocol, state, vector)
+    res.foreach { pic =>
+      println(pic)
+      println()
+    }
+    new Ctx(protocol, state)
+  }
 }
 
 object Comm {
@@ -18,6 +31,10 @@ object Comm {
     val engine = new Engine
     engine.loadFile("./galaxy.txt")
     engine.alienProxyEnabled = true
+    engine.picW = 80
+    engine.picH = 10
+    engine.picOffW = engine.picW / 2
+    engine.picOffH = engine.picH / 2
     new Comm(engine)
   }
 }
