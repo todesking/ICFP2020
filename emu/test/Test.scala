@@ -112,25 +112,25 @@ class Test extends AnyFunSpec {
   it("24. I combinator") {
     assertEval("ap i 1", V.Num(1))
   }
-  it("24. Cons") {
+  it("25. Cons") {
     assertEval("ap ap cons 1 2", V.Cons(V.Num(1), V.Num(2)))
     assertEval("ap ap ap cons 1 2 t", V.Num(1))
     assertEval("ap ap ap cons 1 2 f", V.Num(2))
   }
-  it("25. car") {
+  it("26. car") {
     assertEval("ap car ap ap cons 1 2", V.Num(1))
   }
-  it("26. cdr") {
+  it("27. cdr") {
     assertEval("ap cdr ap ap cons 1 2", V.Num(2))
   }
-  it("27. nil") {
+  it("28. nil") {
     assertEval("ap nil 0", V.True)
   }
-  it("28. isnil") {
+  it("29. isnil") {
     assertEval("ap isnil nil", V.True)
     assertEval("ap isnil ap ap cons 1 2", V.False)
   }
-  it("29. list") {
+  it("30. list") {
     assertEval("()", V.Nil)
     assertEval("(1)", V.Cons(V.Num(1), V.Nil))
     assertEval("(1, 2)", V.Cons(V.Num(1), V.Cons(V.Num(2), V.Nil)))
