@@ -21,7 +21,7 @@ object Parser {
           move(1)
           Tree.Num(n.toInt)
         case name @ ("inc" | "dec" | "mod" | "dem" | "send" | "neg" | "pwr2" |
-            "i" | "car" | "cdr" | "nil" | "isnil" | "draw") =>
+            "i" | "car" | "cdr" | "nil" | "isnil" | "draw" | "multipledraw") =>
           move(1)
           Tree.F1(name)
         case name @ ("add" | "mul" | "div" | "eq" | "lt" | "t" | "f" | "cons" |

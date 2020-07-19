@@ -115,6 +115,21 @@ class Engine {
               }
             val init = V.newPic(19, 15)
             draw(init, x)
+          case "multipledraw" =>
+            def go(x: V): V = {
+              unwrap(x) match {
+                case V.Cons(car, cdr) =>
+                  V.Cons(
+                    eval(Tree.Ap(Tree.F1("draw"), Tree.Value(car))),
+                    go(cdr)
+                  )
+                case V.Nil =>
+                  V.Nil
+                case unk =>
+                  throw new NotImplementedError(s"List required: $unk")
+              }
+            }
+            go(x)
           case unk => throw new AssertionError(s"Unknown F1 name: $unk")
         }
       case V.F2(name) => V.F2X(name, x)
