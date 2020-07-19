@@ -1,6 +1,14 @@
 class Engine {
+  private[this] var env = Map.empty[String, V]
+
   def evalAll(src: String): V =
     unwrapAll(evalStrict(Parser.parse(src)))
+
+  def evalDefinition(name: String, src: String): V = {
+    val v = eval(Parser.parse(src))
+    env = env + (name -> v)
+    v
+  }
 
   def unwrapAll(v: V): V =
     unwrap(v) match {
@@ -33,6 +41,8 @@ class Engine {
     cache.getOrElseUpdate(
       tree,
       tree match {
+        case Var(name) =>
+          env.getOrElse(name, throw new RuntimeException(s"Unbound var: $name"))
         case Value(v) => v
         case Num(n)   => V.Num(n)
         case F1(f)    => V.F1(f)

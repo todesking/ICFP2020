@@ -17,6 +17,9 @@ object Parser {
     val ReNum = """(-?[0-9]+)""".r
     def parse(): Tree =
       peek(0) match {
+        case name if name.nonEmpty && name(0) == ':' =>
+          move(1)
+          Tree.Var(name)
         case ReNum(n) =>
           move(1)
           Tree.Num(n.toInt)

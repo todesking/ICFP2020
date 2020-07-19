@@ -305,6 +305,12 @@ class Test extends AnyFunSpec {
   it("41. stateful drawing protocol") {
     pending
   }
+  it("variable definition") {
+    val engine = new Engine()
+    engine.evalDefinition(":1", "1")
+    engine.evalDefinition(":2", "ap cons 0")
+    assert(engine.evalAll("ap :2 1") == V.Cons(V.Num(0), V.Num(1)))
+  }
   it("modulation num") {
     assert(V.modulate(V.Num(0)) == "010")
     assert(V.modulate(V.Num(1)) == "01100001")
