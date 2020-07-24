@@ -11,11 +11,11 @@ $ sbt run
 
 ## 参加記
 
-今回は初参加でしたが、Galaxy evaluatorを書いただけで終了してしまいました(コンテスト終了後Web UIを追加)。
+今回は初参加でしたが(ソロ)、Galaxy evaluatorを書いただけで終了してしまいました(コンテスト終了後Web UIを追加)。
 
 * 2020-07-17 20:00 とりあえずリポジトリ作る
 * 2020-07-18 20:52 sterter kit (Scala) を導入してsubmitしたりAPI叩いたり。たぶんLightning roundで2点入ったと思うが定かでなし
-* 2020-07-18 20:00 コンテストおよびPegovkaのBlog読んで状況把握。とりあえずMessage #42を実行すれば何かがわかるらしいことはわかった
+* 2020-07-18 20:00 コンテストおよびPegovkaのBlog読んで状況把握。言語仕様が与えられるので、処理系を作ってMessage #42を実行すれば何かがわかるらしいことはわかった
 * 2020-07-19 01:59 Galaxy evaluator作るかってことで、Web UI使うことを見越してPlayのプロジェクト作成
 * 2020-07-19 18:00 実装に取りかかる
 * 2020-07-19 22:57 checkerboard命令で詰まる。どうやら遅延評価が必要らしい
@@ -25,6 +25,8 @@ $ sbt run
 * 2020-07-20 07:54 遅延評価のバグをようやく修正、Galaxy動いたので満足して寝る(おわり)
 
 実働1日しかないやんけ、次回はもっと頑張りたい。
+
+実装開始がほぼ三日目からというサボりぶりだったんですが、公式がevaluatorの実装やゲームに使うプロトコルなどをどんどんネタバレしだしたのでどうしようかと思った。
 
 
 ### 処理系の実装
@@ -77,7 +79,7 @@ unwrap0 V.LazyApp(f, x) = unwrap(f) match {
     // ...
   }
   case V.FunName2(name) => V.FunApp2X(name, x)
-  case V.FunApp2X(name, x0) => name match {
+  case V.FunApp2X(name, x1) => name match {
     case "add" => V.Num(unwrap(x1).as_int + unwrap(x).as_int)
     // ...
   }
@@ -91,6 +93,20 @@ unwrap0 V.LazyApp(f, x) = unwrap(f) match {
 
 * 関数適用は遅延
 * 値が必要になったらキャッシュしつつ中身を計算する
+
 というだけの話だが苦戦してしまった……
 
 あとは変数を評価する時点ではまだ未定義だったりするのでこいつも遅延してやるとか、Consも関数として使えるのでapp可能にしてやるなど。
+
+## Web UI
+
+Evaluatorが動いたので、あとはgalaxyをprotocolとしてinteractすれば画像が帰ってくる。
+
+二値画像複数枚を適当に着色してまとめる、本当はcanvas使うべきだけど1ピクセルあたりdiv一個として表示(重い)、クリックしたらその座標と現在の状態を元に再度interact走らす。
+という処理を書いてこれを得た。
+
+![Galaxy](./galaxy.png)
+
+ICFPC・完！！！！！！！
+
+(本当はこれでようやく入り口なんですが……)
