@@ -16,6 +16,16 @@ object V {
   }
 
   case class Pic(data: Seq[Seq[Boolean]], offW: Int, offH: Int) extends V {
+    require(data.nonEmpty)
+
+    def height = data.size
+    def width = data(0).size
+
+    def xmin = -offW
+    def xmax = width - offW - 1
+    def ymin = -offH
+    def ymax = height - offH - 1
+
     override def toString =
       data
         .map { row =>
@@ -23,10 +33,42 @@ object V {
         }
         .mkString("\n")
 
-    def put(x: Long, y: Long): Pic =
-      putAbs(x + offW, y + offH)
+    def put(x: Int, y: Int): Pic = {
+      val absX = x + offW
+      val absY = y + offH
+      val margin = 10
+      val (newOffW, newW) =
+        if(absX < 0)  (offW + -absX + margin / 2, width + -absX + margin)
+        else if(absX >= width) (offW, absX + margin)
+        else (offW, width)
+      val (newOffH, newH) =
+        if(absY < 0) (offH + -absY + margin / 2, height + -absY + margin)
+        else if(absY >= height) (offH, absY + margin)
+        else (offH, height)
+      if(width < newW || height < newH) expand(offW, newW, newOffH, newH).putInternal(x, y)
+      else putInternal(x, y)
+    }
 
-    def putAbs(x: Long, y: Long): Pic = {
+    def get(x: Int, y: Int): Boolean =
+      data(y + offH)(x + offW)
+
+    private[this] def expand(newOffW: Int, newW: Int, newOffH: Int, newH: Int) = {
+      require(width <= newW && height <= newH)
+      val newData =
+        (0 until newH).view.map { ih =>
+          (0 until newW).view.map { iw =>
+            val x = iw + newOffW
+            val y = ih + newOffH
+            if(xmin <= x && x <= xmax && ymin <= y && y <= ymax) get(x, y)
+            else false
+          }.toVector
+        }.toVector
+      copy(newData, newOffW, newOffH)
+    }
+
+    private def putInternal(x: Int, y: Int) = putAbs(x + offW, y + offH)
+
+    private[this] def putAbs(x: Long, y: Long): Pic = {
       val updated = data.updated(y.toInt, data(y.toInt).updated(x.toInt, true))
       copy(data = updated)
     }

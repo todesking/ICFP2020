@@ -154,7 +154,7 @@ class Engine {
                 case V.Cons(car, cdr) =>
                   val p2 = unwrap(car) match {
                     case V.Cons(x, y) =>
-                      pic.put(unwrapInt(x), unwrapInt(y))
+                      pic.put(unwrapInt(x).toInt, unwrapInt(y).toInt)
                     case unk =>
                       throw new NotImplementedError(
                         s"(Int, Int) required: $unk"
