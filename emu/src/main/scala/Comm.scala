@@ -29,12 +29,14 @@ class Comm(val engine: Engine) {
 }
 
 object Comm {
-  lazy val galaxied = {
+  lazy val galaxied = loadGalaxied()
+
+  def loadGalaxied(w: Int = 80, h: Int = 10) = {
     val engine = new Engine
     engine.loadFile("./galaxy.txt")
     engine.alienProxyEnabled = true
-    engine.picW = 80
-    engine.picH = 10
+    engine.picW = w
+    engine.picH = h
     engine.picOffW = engine.picW / 2
     engine.picOffH = engine.picH / 2
     new Comm(engine)

@@ -134,4 +134,18 @@ object V {
       case V.Nil => scala.collection.immutable.Nil
       case unk   => throw new RuntimeException(s"List required: $unk")
     }
+
+  def isProperList(v: V): Boolean =
+    v match {
+      case Nil        => true
+      case Cons(l, r) => isProperList(r)
+      case _          => false
+    }
+
+  def pretty(v: V): String =
+    v match {
+      case Cons(l, r) if isProperList(v) =>
+        toSeq(v).map(pretty).mkString("(", ", ", ")")
+      case v => v.toString
+    }
 }

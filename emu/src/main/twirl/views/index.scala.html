@@ -1,5 +1,61 @@
-@()
+@import icfp2020.V
+@(state: V, newState: V, x: Int, y: Int, outs: Seq[V])
 
-@main("Welcome to Play") {
-  <h1>Welcome to Play!</h1>
+@main("Galaxy Viewer") {
+  <script>
+    function handleClick(e) {
+      const data = e.srcElement.dataset;
+      const {x, y} = data
+      location.href = '/?state=@(V.modulate(newState))&x=' + x + '&y=' + y;
+    }
+    window.addEventListener('DOMContentLoaded', function(ev) {
+      Array.from(document.getElementsByClassName('map')).forEach((el) => {
+        el.addEventListener('click', handleClick)
+      })
+    })
+  </script>
+  <style>
+.row {
+  margin: 0;
+  padding: 0;
+  display: flex;
+}
+.cell {
+  margin: 0;
+  padding: 0;
+  width: 10px;
+  height: 10px;
+  border-right: gray solid 1px;
+  border-bottom: gray solid 1px;
+}
+.cell.filled {
+  background-color: #fff;
+}
+.cell.empty {
+  background-color: #000;
+}
+  </style>
+
+  <h1>Galaxy</h1>
+
+  <ul>
+    <li><a href="/?state=11011000011111011010110011010110000&x=5&y=4">Something large</a></li>
+  </ul>
+
+  <dl>
+    <dt>Old state</dt><dd>@V.pretty(state)</dd>
+    <dt>Input</dt><dd>(@x, @y)</dd>
+    <dt>New state</dt><dd>@V.pretty(newState)</dd>
+  <dl>
+  <div class="map">
+  @for(out <- outs) {
+  @defining(out.asInstanceOf[V.Pic]){ pic =>
+    <p style="font-family: monospace; font-size: 14px;">
+    @for((row, y) <- pic.data.zipWithIndex) {
+      <div class="row">@for((px, x) <- row.zipWithIndex) {<div class="cell @if(px){filled}else{empty}" data-x="@(x-pic.offW)" data-y="@(y-pic.offH)"></div>}</div>
+    }
+    </pre>
+  }
+  }
+  </div>
 }
