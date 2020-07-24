@@ -1,3 +1,5 @@
+package icfp2020
+
 import java.net.http.{HttpRequest, HttpResponse, HttpClient}
 import java.net.{URI, HttpURLConnection}
 

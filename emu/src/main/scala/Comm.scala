@@ -1,3 +1,5 @@
+package icfp2020
+
 class Comm(val engine: Engine) {
   def interact(protocol: V, state: V, vector: V): (V, Seq[V]) = {
     engine.unwrapAll(

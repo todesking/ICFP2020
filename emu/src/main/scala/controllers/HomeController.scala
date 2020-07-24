@@ -19,8 +19,11 @@ class HomeController @Inject() (val controllerComponents: ControllerComponents)
     * will be called when the application receives a `GET` request with
     * a path of `/`.
     */
-  def index() =
+  def index(paramState: Option[String], paramX: Option[Int], paramY: Option[Int]) =
     Action { implicit request: Request[AnyContent] =>
+      val state = icfp2020.V.demodulate(paramState getOrElse "00")
+      val x = paramX getOrElse 0
+      val y = paramY getOrElse 0
       Ok(views.html.index())
     }
 }

@@ -1,3 +1,5 @@
+package icfp2020
+
 object Parser {
   case class Ctx(data: Seq[String], var index: Int) {
     def isEof = index == data.size

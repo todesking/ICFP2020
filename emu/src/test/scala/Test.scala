@@ -1,3 +1,5 @@
+package icfp2020
+
 import org.scalatest.funspec.AnyFunSpec
 
 class Test extends AnyFunSpec {

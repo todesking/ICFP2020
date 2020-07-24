@@ -1,3 +1,5 @@
+package icfp2020
+
 import java.nio.file.Files
 import java.nio.file.Paths
 import scala.jdk.CollectionConverters._

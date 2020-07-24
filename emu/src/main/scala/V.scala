@@ -1,3 +1,5 @@
+package icfp2020
+
 sealed abstract class V {}
 object V {
   def bool(b: Boolean) = if (b) True else False

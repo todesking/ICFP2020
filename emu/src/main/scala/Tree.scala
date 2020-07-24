@@ -1,3 +1,5 @@
+package icfp2020
+
 sealed abstract class Tree
 object Tree {
   case class Num(n: Long) extends Tree
