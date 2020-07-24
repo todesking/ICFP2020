@@ -1,18 +1,13 @@
 @import icfp2020.V
-@(state: V, newState: V, x: Int, y: Int, outs: Seq[V])
+@(state: V, newState: V, pointX: Int, pointY: Int, pics: Seq[V.Pic], composed: Seq[Seq[Set[Int]]], composedOffW: Int, composedOffH: Int)
 
 @main("Galaxy Viewer") {
   <script>
     function handleClick(e) {
       const data = e.srcElement.dataset;
       const {x, y} = data
-      location.href = '/?state=@(V.modulate(newState))&x=' + x + '&y=' + y;
+      if(x && y) location.href = '/?state=@(V.modulate(newState))&x=' + x + '&y=' + y;
     }
-    window.addEventListener('DOMContentLoaded', function(ev) {
-      Array.from(document.getElementsByClassName('map')).forEach((el) => {
-        el.addEventListener('click', handleClick)
-      })
-    })
   </script>
   <style>
 .row {
@@ -25,14 +20,41 @@
   padding: 0;
   width: 10px;
   height: 10px;
-  border-right: gray solid 1px;
-  border-bottom: gray solid 1px;
 }
 .cell.filled {
   background-color: #fff;
 }
 .cell.empty {
   background-color: #000;
+}
+
+.cell.color_ {
+  background-color: #000;
+}
+
+@for(c: Set[Int] <- composed.flatten.toSet) {
+  @defining(Seq(
+    (0x6f, 0x00, 0x00),
+    (0x00, 0x6f, 0x00),
+    (0x00, 0x00, 0x6f),
+    (0x4f, 0x00, 0x00),
+    (0x00, 0x4f, 0x00),
+    (0x00, 0x00, 0x4f),
+    (0x2f, 0x00, 0x00),
+    (0x00, 0x2f, 0x00),
+    (0x00, 0x00, 0x2f),
+  )) { colors =>
+  .cell.color_@(c.toSeq.sorted.mkString("")) {
+    background-color: #@(
+      "%06x".format(
+        c.foldLeft(0) { case (rgb, i) =>
+          val (r, g, b) = colors(i)
+          rgb + (r << 16) + (g << 8) + (b << 0)
+        }
+      )
+    );
+  }
+  }
 }
   </style>
 
@@ -44,18 +66,24 @@
 
   <dl>
     <dt>Old state</dt><dd>@V.pretty(state)</dd>
-    <dt>Input</dt><dd>(@x, @y)</dd>
+    <dt>Input</dt><dd>(@pointX, @pointY)</dd>
     <dt>New state</dt><dd>@V.pretty(newState)</dd>
   <dl>
-  <div class="map">
-  @for(out <- outs) {
-  @defining(out.asInstanceOf[V.Pic]){ pic =>
+  <div id="map">
+  <script>
+    document.getElementById('map').addEventListener('click', handleClick)
+  </script>
+  <p>
+    @for((row, y) <- composed.zipWithIndex) {
+    <div class="row">@for((col, x) <- row.zipWithIndex) {<div class="cell color_@{col.toSeq.sorted.mkString("")}" data-x="@(x-composedOffW)" data-y="@(y-composedOffH)"></div>}</div>
+    }
+  </p>
+  @for(pic <- pics) {
     <p style="font-family: monospace; font-size: 14px;">
     @for((row, y) <- pic.data.zipWithIndex) {
       <div class="row">@for((px, x) <- row.zipWithIndex) {<div class="cell @if(px){filled}else{empty}" data-x="@(x-pic.offW)" data-y="@(y-pic.offH)"></div>}</div>
     }
-    </pre>
-  }
+    </p>
   }
   </div>
 }

@@ -170,6 +170,7 @@ class Test extends AnyFunSpec {
       |D ___________________
       |E ___________________
     """))
+    assert(p1.clipped.toString == "*")
     val p2 = handle().eval(
       "ap draw ( ap ap vec 5 3 , ap ap vec 6 3 , ap ap vec 4 4 , ap ap vec 6 4 , ap ap vec 4 5 )"
     )

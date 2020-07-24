@@ -34,6 +34,19 @@ class HomeController @Inject() (val controllerComponents: ControllerComponents)
       val y = paramY getOrElse 0
       val (newState, out) =
         comm.interact(galaxyProtocol, state, V.Cons(V.Num(x), V.Num(y)))
-      Ok(views.html.index(state, newState, x, y, out))
+      val pics = out.map(_.asInstanceOf[V.Pic]).map(_.clipped)
+      val xmin = pics.map(_.xmin).min
+      val xmax = pics.map(_.xmax).max
+      val ymin = pics.map(_.ymin).min
+      val ymax = pics.map(_.ymax).max
+      val composed = (ymin to ymax).map { y =>
+        (xmin to xmax).map { x =>
+          pics.zipWithIndex.flatMap {
+            case (pic, i) =>
+              if (pic.get(x, y)) Option(i) else None
+          }.toSet
+        }
+      }
+      Ok(views.html.index(state, newState, x, y, pics, composed, -xmin, -ymin))
     }
 }

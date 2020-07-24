@@ -38,29 +38,66 @@ object V {
       val absY = y + offH
       val margin = 10
       val (newOffW, newW) =
-        if(absX < 0)  (offW + -absX + margin / 2, width + -absX + margin)
-        else if(absX >= width) (offW, absX + margin)
+        if (absX < 0) (offW + -absX + margin, width + -absX + margin)
+        else if (absX >= width) (offW, absX + margin)
         else (offW, width)
       val (newOffH, newH) =
-        if(absY < 0) (offH + -absY + margin / 2, height + -absY + margin)
-        else if(absY >= height) (offH, absY + margin)
+        if (absY < 0) (offH + -absY + margin, height + -absY + margin)
+        else if (absY >= height) (offH, absY + margin)
         else (offH, height)
-      if(width < newW || height < newH) expand(offW, newW, newOffH, newH).putInternal(x, y)
+      // println(s"put($x, $y) => off = ($offW, $offH) -> ($newOffW, $newOffH), wh = ($width, $height) -> ($newW, $newH)")
+      if (width < newW || height < newH)
+        resize(newOffW, newW, newOffH, newH).putInternal(x, y)
       else putInternal(x, y)
     }
 
     def get(x: Int, y: Int): Boolean =
-      data(y + offH)(x + offW)
+      if (xmin <= x && x <= xmax && ymin <= y && y <= ymax)
+        data(y + offH)(x + offW)
+      else false
 
-    private[this] def expand(newOffW: Int, newW: Int, newOffH: Int, newH: Int) = {
-      require(width <= newW && height <= newH)
+    def clipped: Pic = {
+      val left =
+        (ymin to ymax)
+          .flatMap { y =>
+            (xmin to xmax).find(get(_, y))
+          }
+          .minOption
+          .getOrElse(0)
+      val right =
+        (ymin to ymax)
+          .flatMap { y =>
+            (xmin to xmax).findLast(get(_, y))
+          }
+          .maxOption
+          .getOrElse(0)
+      val top =
+        (ymin to ymax)
+          .find { y =>
+            (xmin to xmax).exists(get(_, y))
+          }
+          .minOption
+          .getOrElse(0)
+      val bottom =
+        (ymin to ymax)
+          .findLast { y =>
+            (xmin to xmax).exists(get(_, y))
+          }
+          .maxOption
+          .getOrElse(0)
+      resize(-left, right - left + 1, -top, bottom - top + 1)
+    }
+
+    private[this] def resize(
+        newOffW: Int,
+        newW: Int,
+        newOffH: Int,
+        newH: Int
+    ) = {
       val newData =
         (0 until newH).view.map { ih =>
           (0 until newW).view.map { iw =>
-            val x = iw + newOffW
-            val y = ih + newOffH
-            if(xmin <= x && x <= xmax && ymin <= y && y <= ymax) get(x, y)
-            else false
+            get(iw - newOffW, ih - newOffH)
           }.toVector
         }.toVector
       copy(newData, newOffW, newOffH)
